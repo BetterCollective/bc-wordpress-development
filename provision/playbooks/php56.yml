@@ -87,6 +87,13 @@
     args:
       executable: /bin/bash
 
+  - name: enable php5.6 apache
+    shell: a2enmod php5.6
+    become: true
+    become_user: root
+    args:
+      executable: /bin/bash
+
   - name: Fix short open tags
     replace:
       path: "{{ item }}"

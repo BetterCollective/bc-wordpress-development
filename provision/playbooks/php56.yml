@@ -107,6 +107,33 @@
       - /etc/php/5.6/cli/php.ini
       - /etc/php/5.6/fpm/php.ini
 
+  - name: Set unlimited upload size in php.ini
+    replace:
+      path: "{{ item }}"
+      regexp: '^upload_max_filesize.*'
+      replace: 'upload_max_filesize = 0'
+      backup: yes
+    become: true
+    become_user: root
+    with_items:
+      - /etc/php/5.6/apache2/php.ini
+      - /etc/php/5.6/cli/php.ini
+      - /etc/php/5.6/fpm/php.ini
+
+
+  - name: Set unlimited post size in php.ini
+    replace:
+      path: "{{ item }}"
+      regexp: '^post_max_size.*'
+      replace: 'post_max_size = 0'
+      backup: yes
+    become: true
+    become_user: root
+    with_items:
+      - /etc/php/5.6/apache2/php.ini
+      - /etc/php/5.6/cli/php.ini
+      - /etc/php/5.6/fpm/php.ini
+
   - name: Restart services
     service:
       name: "{{ item }}"

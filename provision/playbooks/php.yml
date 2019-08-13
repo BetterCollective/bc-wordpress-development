@@ -1,0 +1,163 @@
+---
+- hosts: all
+
+  tasks:
+  - name: Add new ppa
+    apt_repository:
+      repo: "{{ item }}"
+    with_items:
+      - ppa:ondrej/php
+      - ppa:ondrej/apache2
+    become: true
+    become_user: root
+
+  - name: install packages
+    apt:
+      name: "{{ item }}"
+      update_cache: yes
+      state: latest
+    become: true
+    become_user: root
+    with_items:
+      - bash-completion
+      - php{{ vccw.php_version }}
+      - libapache2-mod-php{{ vccw.php_version }}
+      - php{{ vccw.php_version }}-fpm
+      - php{{ vccw.php_version }}-mysql
+      - php{{ vccw.php_version }}-sqlite3
+      - php{{ vccw.php_version }}-bcmath
+      - php{{ vccw.php_version }}-gd
+      - php{{ vccw.php_version }}-odbc
+      - php{{ vccw.php_version }}-sybase
+      - php{{ vccw.php_version }}-bz2
+      - php{{ vccw.php_version }}-gmp
+      - php{{ vccw.php_version }}-opcache
+      - php{{ vccw.php_version }}-tidy
+      - php{{ vccw.php_version }}-cgi
+      - php{{ vccw.php_version }}-imap
+      - php{{ vccw.php_version }}-pgsql
+      - php{{ vccw.php_version }}-xml
+      - php{{ vccw.php_version }}-cli
+      - php{{ vccw.php_version }}-interbase
+      - php{{ vccw.php_version }}-phpdbg
+      - php{{ vccw.php_version }}-xmlrpc
+      - php{{ vccw.php_version }}-common
+      - php{{ vccw.php_version }}-intl
+      - php{{ vccw.php_version }}-pspell
+      - php{{ vccw.php_version }}-xsl
+      - php{{ vccw.php_version }}-curl
+      - php{{ vccw.php_version }}-json
+      - php{{ vccw.php_version }}-readline
+      - php{{ vccw.php_version }}-zip
+      - php{{ vccw.php_version }}-dba
+      - php{{ vccw.php_version }}-ldap
+      - php{{ vccw.php_version }}-recode
+      - php{{ vccw.php_version }}-dev
+      - php{{ vccw.php_version }}-mbstring
+      - php{{ vccw.php_version }}-snmp
+      - php{{ vccw.php_version }}-enchant
+      - php{{ vccw.php_version }}-soap
+
+  - name: install only old version of php packages
+    apt:
+      name: "{{ item }}"
+      update_cache: yes
+      state: latest
+    become: true
+    become_user: root
+    with_items:
+      - php{{ vccw.php_version }}-mcrypt
+    when: vccw.php_version == '5.6' or vccw.php_version == '7.0'
+
+  - name: disable apache 7.0 php mod
+    shell: a2dismod php7.0
+    become: true
+    become_user: root
+    args:
+      executable: /bin/bash
+
+  - name: enable proxy_fcgi
+    shell: a2enmod proxy_fcgi setenvif
+    become: true
+    become_user: root
+    args:
+      executable: /bin/bash
+
+  - name: enable mod headers and auth
+    shell: a2enmod headers auth_form request
+    become: true
+    become_user: root
+    args:
+      executable: /bin/bash
+
+  - name: enable php {{ vccw.php_version }}
+    shell: a2enconf php{{ vccw.php_version }}-fpm
+    become: true
+    become_user: root
+    args:
+      executable: /bin/bash
+
+  - name: force {{ vccw.php_version }} as default
+    shell: update-alternatives --set php /usr/bin/php{{ vccw.php_version }}
+    become: true
+    become_user: root
+    args:
+      executable: /bin/bash
+
+  - name: enable php{{ vccw.php_version }} apache
+    shell: a2enmod php{{ vccw.php_version }}
+    become: true
+    become_user: root
+    args:
+      executable: /bin/bash
+
+  - name: Fix short open tags
+    replace:
+      path: "{{ item }}"
+      regexp: 'short_open_tag = Off'
+      replace: 'short_open_tag = On'
+      backup: yes
+    become: true
+    become_user: root
+    with_items:
+      - /etc/php/{{ vccw.php_version }}/apache2/php.ini
+      - /etc/php/{{ vccw.php_version }}/cli/php.ini
+      - /etc/php/{{ vccw.php_version }}/fpm/php.ini
+
+  - name: Set unlimited upload size in php.ini
+    replace:
+      path: "{{ item }}"
+      regexp: '^upload_max_filesize.*'
+      replace: 'upload_max_filesize = 0'
+      backup: yes
+    become: true
+    become_user: root
+    with_items:
+      - /etc/php/{{ vccw.php_version }}/apache2/php.ini
+      - /etc/php/{{ vccw.php_version }}/cli/php.ini
+      - /etc/php/{{ vccw.php_version }}/fpm/php.ini
+
+
+  - name: Set unlimited post size in php.ini
+    replace:
+      path: "{{ item }}"
+      regexp: '^post_max_size.*'
+      replace: 'post_max_size = 0'
+      backup: yes
+    become: true
+    become_user: root
+    with_items:
+      - /etc/php/{{ vccw.php_version }}/apache2/php.ini
+      - /etc/php/{{ vccw.php_version }}/cli/php.ini
+      - /etc/php/{{ vccw.php_version }}/fpm/php.ini
+
+  - name: Restart services
+    service:
+      name: "{{ item }}"
+      state: restarted
+    become: true
+    become_user: root
+    with_items:
+      - apache2
+      - php{{ vccw.php_version }}-fpm
+

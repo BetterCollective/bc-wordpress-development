@@ -4,13 +4,31 @@ cp ./provision/default.yml ./site.yml
 printf "Domain name (eg. promocode.co.ke): "; read domain
 sed -i -e "/hostname:/s/.*/hostname: $domain/" site.yml
 
-echo -n "Do you want to use PHP 5.6 instead of PHP 7.0 (y/N)?"
-read php_ans
-if echo "$php_ans" | grep -iq "^y"; then
-    sed -i -e "/enable_php56:/s/.*/enable_php56: true/" site.yml
-else
-    sed -i -e "/enable_php56:/s/.*/enable_php56: false/" site.yml
-fi
+printf "Specify version of PHP (press number)\n1) PHP 5.6;\n2) PHP 7.0  <-- default value \n3) PHP 7.1\n4) PHP 7.2\n5) PHP 7.3\nEnter number (PHP 7.0 as default): "; read php_version_number
+
+case $php_version_number in
+  1)
+        php_version='5.6'
+        ;;
+  2)
+        php_version='7.0'
+        ;;
+  3)
+        php_version='7.1'
+        ;;
+  4)
+        php_version='7.2'
+        ;;
+  5)
+        php_version='7.3'
+        ;;
+  *)
+        php_version='7.0'
+esac
+
+
+echo "You are going to set up PHP $php_version"
+sed -i -e "/php_version:/s/.*/php_version: $php_version/" site.yml
 
 echo -n "Do you want to work on an existing Wordpress website (y/n)?"
 read answer

@@ -1,5 +1,4 @@
 #!/bin/bash
-
 cp ./provision/default.yml ./site.yml
 while [[ -z $domain ]]; do
     printf "Domain name (eg. promocode.co.ke): "; read domain
@@ -35,6 +34,10 @@ fi
 
 echo "Address $ip will be used for new vagrant box"
 sed -i -e "/^ip:/s/.*/ip: $ip/" site.yml
+
+forwarded_port=`python -c "import random; print random.randint(8000,8999)"`
+
+sed -i -e "/^forwarded_port:/s/.*/forwarded_port: $forwarded_port/" site.yml
 
 echo -n "Do you want to work on an existing Wordpress website (y/n)?"
 read answer

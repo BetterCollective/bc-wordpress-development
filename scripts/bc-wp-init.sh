@@ -1,7 +1,10 @@
 #!/bin/bash
 
 cp ./provision/default.yml ./site.yml
-printf "Domain name (eg. promocode.co.ke): "; read domain
+while [[ -z $domain ]]; do
+    printf "Domain name (eg. promocode.co.ke): "; read domain
+done
+
 sed -i -e "/hostname:/s/.*/hostname: $domain/" site.yml
 
 echo -n "Do you want to use PHP 5.6 instead of PHP 7.0 (y/N)?"
@@ -11,6 +14,27 @@ if echo "$php_ans" | grep -iq "^y"; then
 else
     sed -i -e "/enable_php56:/s/.*/enable_php56: false/" site.yml
 fi
+
+echo "Evaluating ip address for new vagrant box..."
+nextip(){
+    IP=$1
+    IP_HEX=$(printf '%.2X%.2X%.2X%.2X\n' `echo $IP | sed -e 's/\./ /g'`)
+    NEXT_IP_HEX=$(printf %.8X `echo $(( 0x$IP_HEX + 1 ))`)
+    NEXT_IP=$(printf '%d.%d.%d.%d\n' `echo $NEXT_IP_HEX | sed -r 's/(..)/0x\1 /g'`)
+    echo "$NEXT_IP"
+}
+
+# 
+if [[ -n `cat /etc/hosts | grep $domain` ]]
+then
+    ip=`cat /etc/hosts | grep $domain | awk ' { print $1} ' | uniq`     
+else
+    max_used_ip=`cat /etc/hosts | grep -E '^192.168.33' | awk ' { print $1} ' | sort | uniq | tail -n 1`
+    test -n $max_used_ip && ip=$(nextip $max_used_ip) || ip="192.168.33.10"
+fi
+
+echo "Address $ip will be used for new vagrant box"
+sed -i -e "/^ip:/s/.*/ip: $ip/" site.yml
 
 echo -n "Do you want to work on an existing Wordpress website (y/n)?"
 read answer

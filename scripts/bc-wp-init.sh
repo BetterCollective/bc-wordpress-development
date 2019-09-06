@@ -4,25 +4,25 @@ cp ./provision/default.yml ./site.yml
 printf "Domain name (eg. promocode.co.ke): "; read domain
 sed -i -e "/hostname:/s/.*/hostname: $domain/" site.yml
 
-printf "Specify version of PHP (press number)\n1) PHP 5.6;\n2) PHP 7.0  <-- default value \n3) PHP 7.1\n4) PHP 7.2\n5) PHP 7.3\nEnter number (PHP 7.0 as default): "; read php_version_number
+printf "Specify version of PHP (choose item numer, eg. 1 for php 5.6 installation)\n1) PHP 5.6\n2) PHP 7.0 <-- default value \n3) PHP 7.1\n4) PHP 7.2\n5) PHP 7.3\nEnter number (PHP 7.0 as default): "; read php_version_number
 
 case $php_version_number in
-  1)
+  "1")
         php_version='5.6'
         ;;
-  2)
+  "2")
         php_version='7.0'
         ;;
-  3)
+  "3")
         php_version='7.1'
         ;;
-  4)
+  "4")
         php_version='7.2'
         ;;
-  5)
+  "5")
         php_version='7.3'
         ;;
-  *)
+  "*")
         php_version='7.0'
 esac
 

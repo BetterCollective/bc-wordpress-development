@@ -1,0 +1,163 @@
+---
+- hosts: all
+
+  tasks:
+  - name: Add new ppa
+    apt_repository:
+      repo: "{{ item }}"
+    with_items:
+      - ppa:ondrej/php
+      - ppa:ondrej/apache2
+    become: true
+    become_user: root
+
+  - name: install packages
+    apt:
+      name: "{{ item }}"
+      update_cache: yes
+      state: latest
+    become: true
+    become_user: root
+    with_items:
+      - bash-completion
+      - php{{ vccw.php_fpm }}
+      - libapache2-mod-php{{ vccw.php_fpm }}
+      - php{{ vccw.php_fpm }}-fpm
+      - php{{ vccw.php_fpm }}-mysql
+      - php{{ vccw.php_fpm }}-sqlite3
+      - php{{ vccw.php_fpm }}-bcmath
+      - php{{ vccw.php_fpm }}-gd
+      - php{{ vccw.php_fpm }}-odbc
+      - php{{ vccw.php_fpm }}-sybase
+      - php{{ vccw.php_fpm }}-bz2
+      - php{{ vccw.php_fpm }}-gmp
+      - php{{ vccw.php_fpm }}-opcache
+      - php{{ vccw.php_fpm }}-tidy
+      - php{{ vccw.php_fpm }}-cgi
+      - php{{ vccw.php_fpm }}-imap
+      - php{{ vccw.php_fpm }}-pgsql
+      - php{{ vccw.php_fpm }}-xml
+      - php{{ vccw.php_fpm }}-cli
+      - php{{ vccw.php_fpm }}-interbase
+      - php{{ vccw.php_fpm }}-phpdbg
+      - php{{ vccw.php_fpm }}-xmlrpc
+      - php{{ vccw.php_fpm }}-common
+      - php{{ vccw.php_fpm }}-intl
+      - php{{ vccw.php_fpm }}-pspell
+      - php{{ vccw.php_fpm }}-xsl
+      - php{{ vccw.php_fpm }}-curl
+      - php{{ vccw.php_fpm }}-json
+      - php{{ vccw.php_fpm }}-readline
+      - php{{ vccw.php_fpm }}-zip
+      - php{{ vccw.php_fpm }}-dba
+      - php{{ vccw.php_fpm }}-ldap
+      - php{{ vccw.php_fpm }}-recode
+      - php{{ vccw.php_fpm }}-dev
+      - php{{ vccw.php_fpm }}-mbstring
+      - php{{ vccw.php_fpm }}-snmp
+      - php{{ vccw.php_fpm }}-enchant
+      - php{{ vccw.php_fpm }}-soap
+
+  - name: install only old version of php packages
+    apt:
+      name: "{{ item }}"
+      update_cache: yes
+      state: latest
+    become: true
+    become_user: root
+    with_items:
+      - php{{ vccw.php_fpm }}-mcrypt
+    when: vccw.php_fpm == '5.6' or vccw.php_fpm == '7.0'
+
+  - name: disable apache 7.0 php mod
+    shell: a2dismod php7.0
+    become: true
+    become_user: root
+    args:
+      executable: /bin/bash
+
+  - name: enable proxy_fcgi
+    shell: a2enmod proxy_fcgi setenvif
+    become: true
+    become_user: root
+    args:
+      executable: /bin/bash
+
+  - name: enable mod headers and auth
+    shell: a2enmod headers auth_form request
+    become: true
+    become_user: root
+    args:
+      executable: /bin/bash
+
+  - name: enable php {{ vccw.php_fpm }}
+    shell: a2enconf php{{ vccw.php_fpm }}-fpm
+    become: true
+    become_user: root
+    args:
+      executable: /bin/bash
+
+  - name: force {{ vccw.php_fpm }} as default
+    shell: update-alternatives --set php /usr/bin/php{{ vccw.php_fpm }}
+    become: true
+    become_user: root
+    args:
+      executable: /bin/bash
+
+  - name: enable php{{ vccw.php_fpm }} apache
+    shell: a2enmod php{{ vccw.php_fpm }}
+    become: true
+    become_user: root
+    args:
+      executable: /bin/bash
+
+  - name: Fix short open tags
+    replace:
+      path: "{{ item }}"
+      regexp: 'short_open_tag = Off'
+      replace: 'short_open_tag = On'
+      backup: yes
+    become: true
+    become_user: root
+    with_items:
+      - /etc/php/{{ vccw.php_fpm }}/apache2/php.ini
+      - /etc/php/{{ vccw.php_fpm }}/cli/php.ini
+      - /etc/php/{{ vccw.php_fpm }}/fpm/php.ini
+
+  - name: Set unlimited upload size in php.ini
+    replace:
+      path: "{{ item }}"
+      regexp: '^upload_max_filesize.*'
+      replace: 'upload_max_filesize = 0'
+      backup: yes
+    become: true
+    become_user: root
+    with_items:
+      - /etc/php/{{ vccw.php_fpm }}/apache2/php.ini
+      - /etc/php/{{ vccw.php_fpm }}/cli/php.ini
+      - /etc/php/{{ vccw.php_fpm }}/fpm/php.ini
+
+
+  - name: Set unlimited post size in php.ini
+    replace:
+      path: "{{ item }}"
+      regexp: '^post_max_size.*'
+      replace: 'post_max_size = 0'
+      backup: yes
+    become: true
+    become_user: root
+    with_items:
+      - /etc/php/{{ vccw.php_fpm }}/apache2/php.ini
+      - /etc/php/{{ vccw.php_fpm }}/cli/php.ini
+      - /etc/php/{{ vccw.php_fpm }}/fpm/php.ini
+
+  - name: Restart services
+    service:
+      name: "{{ item }}"
+      state: restarted
+    become: true
+    become_user: root
+    with_items:
+      - apache2
+      - php{{ vccw.php_fpm }}-fpm
+

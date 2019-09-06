@@ -1,7 +1,9 @@
 #!/bin/bash
-
 cp ./provision/default.yml ./site.yml
-printf "Domain name (eg. promocode.co.ke): "; read domain
+while [[ -z $domain ]]; do
+    printf "Domain name (eg. promocode.co.ke): "; read domain
+done
+
 sed -i -e "/hostname:/s/.*/hostname: $domain/" site.yml
 
 printf "Specify version of PHP (choose item numer, eg. 1 for php 5.6 installation)\n1) PHP 5.6\n2) PHP 7.0 <-- default value \n3) PHP 7.1\n4) PHP 7.2\n5) PHP 7.3\nEnter number (PHP 7.0 as default): "; read php_version_number
@@ -29,6 +31,31 @@ esac
 
 echo "You are going to set up PHP $php_fpm"
 sed -i -e "/php_fpm:/s/.*/php_fpm: $php_fpm/" site.yml
+
+echo "Evaluating ip address for new vagrant box..."
+nextip(){
+    IP=$1
+    IP_HEX=$(printf '%.2X%.2X%.2X%.2X\n' `echo $IP | sed 's/\./ /g'`)
+    NEXT_IP_HEX=$(printf %.8X `echo $(( 0x$IP_HEX + 1 ))`)
+    NEXT_IP=$(printf '%d.%d.%d.%d\n' `echo $NEXT_IP_HEX | sed 's/../0x& /g'`)
+    echo "$NEXT_IP"
+}
+
+# 
+if [[ -n `cat /etc/hosts | grep $domain` ]]
+then
+    ip=`cat /etc/hosts | grep $domain | awk ' { print $1} ' | uniq`     
+else
+    max_used_ip=`cat /etc/hosts | grep -E '^192.168.33' | awk ' { print $1} ' | sort | uniq | tail -n 1`
+    test -n $max_used_ip && ip=$(nextip $max_used_ip) || ip="192.168.33.10"
+fi
+
+echo "Address $ip will be used for new vagrant box"
+sed -i -e "/^ip:/s/.*/ip: $ip/" site.yml
+
+forwarded_port=`python -c "import random; print random.randint(8000,8999)"`
+
+sed -i -e "/^forwarded_port:/s/.*/forwarded_port: $forwarded_port/" site.yml
 
 echo -n "Do you want to work on an existing Wordpress website (y/n)?"
 read answer

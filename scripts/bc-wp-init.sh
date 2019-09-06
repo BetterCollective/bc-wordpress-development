@@ -17,9 +17,9 @@ fi
 echo "Evaluating ip address for new vagrant box..."
 nextip(){
     IP=$1
-    IP_HEX=$(printf '%.2X%.2X%.2X%.2X\n' `echo $IP | sed -e 's/\./ /g'`)
+    IP_HEX=$(printf '%.2X%.2X%.2X%.2X\n' `echo $IP | sed 's/\./ /g'`)
     NEXT_IP_HEX=$(printf %.8X `echo $(( 0x$IP_HEX + 1 ))`)
-    NEXT_IP=$(printf '%d.%d.%d.%d\n' `echo $NEXT_IP_HEX | sed -r 's/(..)/0x\1 /g'`)
+    NEXT_IP=$(printf '%d.%d.%d.%d\n' `echo $NEXT_IP_HEX | sed 's/../0x& /g'`)
     echo "$NEXT_IP"
 }
 

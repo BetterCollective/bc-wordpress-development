@@ -8,27 +8,27 @@ printf "Specify version of PHP (choose item numer, eg. 1 for php 5.6 installatio
 
 case $php_version_number in
   "1")
-        php_version='5.6'
+        php_fpm='5.6'
         ;;
   "2")
-        php_version='7.0'
+        php_fpm='7.0'
         ;;
   "3")
-        php_version='7.1'
+        php_fpm='7.1'
         ;;
   "4")
-        php_version='7.2'
+        php_fpm='7.2'
         ;;
   "5")
-        php_version='7.3'
+        php_fpm='7.3'
         ;;
   "*")
-        php_version='7.0'
+        php_fpm='7.0'
 esac
 
 
-echo "You are going to set up PHP $php_version"
-sed -i -e "/php_version:/s/.*/php_version: $php_version/" site.yml
+echo "You are going to set up PHP $php_fpm"
+sed -i -e "/php_fpm:/s/.*/php_fpm: $php_fpm/" site.yml
 
 echo -n "Do you want to work on an existing Wordpress website (y/n)?"
 read answer

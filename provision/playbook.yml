@@ -4,5 +4,5 @@
 - include: playbooks/wordpress.yml
 - include: playbooks/mysql_compatibility.yml
 - include: playbooks/php.yml 
-  when: vccw.php_version != '7.0'
+  when: vccw.php_fpm != '7.0'
 

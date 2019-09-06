@@ -20,43 +20,43 @@
     become_user: root
     with_items:
       - bash-completion
-      - php{{ vccw.php_version }}
-      - libapache2-mod-php{{ vccw.php_version }}
-      - php{{ vccw.php_version }}-fpm
-      - php{{ vccw.php_version }}-mysql
-      - php{{ vccw.php_version }}-sqlite3
-      - php{{ vccw.php_version }}-bcmath
-      - php{{ vccw.php_version }}-gd
-      - php{{ vccw.php_version }}-odbc
-      - php{{ vccw.php_version }}-sybase
-      - php{{ vccw.php_version }}-bz2
-      - php{{ vccw.php_version }}-gmp
-      - php{{ vccw.php_version }}-opcache
-      - php{{ vccw.php_version }}-tidy
-      - php{{ vccw.php_version }}-cgi
-      - php{{ vccw.php_version }}-imap
-      - php{{ vccw.php_version }}-pgsql
-      - php{{ vccw.php_version }}-xml
-      - php{{ vccw.php_version }}-cli
-      - php{{ vccw.php_version }}-interbase
-      - php{{ vccw.php_version }}-phpdbg
-      - php{{ vccw.php_version }}-xmlrpc
-      - php{{ vccw.php_version }}-common
-      - php{{ vccw.php_version }}-intl
-      - php{{ vccw.php_version }}-pspell
-      - php{{ vccw.php_version }}-xsl
-      - php{{ vccw.php_version }}-curl
-      - php{{ vccw.php_version }}-json
-      - php{{ vccw.php_version }}-readline
-      - php{{ vccw.php_version }}-zip
-      - php{{ vccw.php_version }}-dba
-      - php{{ vccw.php_version }}-ldap
-      - php{{ vccw.php_version }}-recode
-      - php{{ vccw.php_version }}-dev
-      - php{{ vccw.php_version }}-mbstring
-      - php{{ vccw.php_version }}-snmp
-      - php{{ vccw.php_version }}-enchant
-      - php{{ vccw.php_version }}-soap
+      - php{{ vccw.php_fpm }}
+      - libapache2-mod-php{{ vccw.php_fpm }}
+      - php{{ vccw.php_fpm }}-fpm
+      - php{{ vccw.php_fpm }}-mysql
+      - php{{ vccw.php_fpm }}-sqlite3
+      - php{{ vccw.php_fpm }}-bcmath
+      - php{{ vccw.php_fpm }}-gd
+      - php{{ vccw.php_fpm }}-odbc
+      - php{{ vccw.php_fpm }}-sybase
+      - php{{ vccw.php_fpm }}-bz2
+      - php{{ vccw.php_fpm }}-gmp
+      - php{{ vccw.php_fpm }}-opcache
+      - php{{ vccw.php_fpm }}-tidy
+      - php{{ vccw.php_fpm }}-cgi
+      - php{{ vccw.php_fpm }}-imap
+      - php{{ vccw.php_fpm }}-pgsql
+      - php{{ vccw.php_fpm }}-xml
+      - php{{ vccw.php_fpm }}-cli
+      - php{{ vccw.php_fpm }}-interbase
+      - php{{ vccw.php_fpm }}-phpdbg
+      - php{{ vccw.php_fpm }}-xmlrpc
+      - php{{ vccw.php_fpm }}-common
+      - php{{ vccw.php_fpm }}-intl
+      - php{{ vccw.php_fpm }}-pspell
+      - php{{ vccw.php_fpm }}-xsl
+      - php{{ vccw.php_fpm }}-curl
+      - php{{ vccw.php_fpm }}-json
+      - php{{ vccw.php_fpm }}-readline
+      - php{{ vccw.php_fpm }}-zip
+      - php{{ vccw.php_fpm }}-dba
+      - php{{ vccw.php_fpm }}-ldap
+      - php{{ vccw.php_fpm }}-recode
+      - php{{ vccw.php_fpm }}-dev
+      - php{{ vccw.php_fpm }}-mbstring
+      - php{{ vccw.php_fpm }}-snmp
+      - php{{ vccw.php_fpm }}-enchant
+      - php{{ vccw.php_fpm }}-soap
 
   - name: install only old version of php packages
     apt:
@@ -66,8 +66,8 @@
     become: true
     become_user: root
     with_items:
-      - php{{ vccw.php_version }}-mcrypt
-    when: vccw.php_version == '5.6' or vccw.php_version == '7.0'
+      - php{{ vccw.php_fpm }}-mcrypt
+    when: vccw.php_fpm == '5.6' or vccw.php_fpm == '7.0'
 
   - name: disable apache 7.0 php mod
     shell: a2dismod php7.0
@@ -90,22 +90,22 @@
     args:
       executable: /bin/bash
 
-  - name: enable php {{ vccw.php_version }}
-    shell: a2enconf php{{ vccw.php_version }}-fpm
+  - name: enable php {{ vccw.php_fpm }}
+    shell: a2enconf php{{ vccw.php_fpm }}-fpm
     become: true
     become_user: root
     args:
       executable: /bin/bash
 
-  - name: force {{ vccw.php_version }} as default
-    shell: update-alternatives --set php /usr/bin/php{{ vccw.php_version }}
+  - name: force {{ vccw.php_fpm }} as default
+    shell: update-alternatives --set php /usr/bin/php{{ vccw.php_fpm }}
     become: true
     become_user: root
     args:
       executable: /bin/bash
 
-  - name: enable php{{ vccw.php_version }} apache
-    shell: a2enmod php{{ vccw.php_version }}
+  - name: enable php{{ vccw.php_fpm }} apache
+    shell: a2enmod php{{ vccw.php_fpm }}
     become: true
     become_user: root
     args:
@@ -120,9 +120,9 @@
     become: true
     become_user: root
     with_items:
-      - /etc/php/{{ vccw.php_version }}/apache2/php.ini
-      - /etc/php/{{ vccw.php_version }}/cli/php.ini
-      - /etc/php/{{ vccw.php_version }}/fpm/php.ini
+      - /etc/php/{{ vccw.php_fpm }}/apache2/php.ini
+      - /etc/php/{{ vccw.php_fpm }}/cli/php.ini
+      - /etc/php/{{ vccw.php_fpm }}/fpm/php.ini
 
   - name: Set unlimited upload size in php.ini
     replace:
@@ -133,9 +133,9 @@
     become: true
     become_user: root
     with_items:
-      - /etc/php/{{ vccw.php_version }}/apache2/php.ini
-      - /etc/php/{{ vccw.php_version }}/cli/php.ini
-      - /etc/php/{{ vccw.php_version }}/fpm/php.ini
+      - /etc/php/{{ vccw.php_fpm }}/apache2/php.ini
+      - /etc/php/{{ vccw.php_fpm }}/cli/php.ini
+      - /etc/php/{{ vccw.php_fpm }}/fpm/php.ini
 
 
   - name: Set unlimited post size in php.ini
@@ -147,9 +147,9 @@
     become: true
     become_user: root
     with_items:
-      - /etc/php/{{ vccw.php_version }}/apache2/php.ini
-      - /etc/php/{{ vccw.php_version }}/cli/php.ini
-      - /etc/php/{{ vccw.php_version }}/fpm/php.ini
+      - /etc/php/{{ vccw.php_fpm }}/apache2/php.ini
+      - /etc/php/{{ vccw.php_fpm }}/cli/php.ini
+      - /etc/php/{{ vccw.php_fpm }}/fpm/php.ini
 
   - name: Restart services
     service:
@@ -159,5 +159,5 @@
     become_user: root
     with_items:
       - apache2
-      - php{{ vccw.php_version }}-fpm
+      - php{{ vccw.php_fpm }}-fpm
 

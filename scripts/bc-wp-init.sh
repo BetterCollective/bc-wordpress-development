@@ -43,7 +43,7 @@ nextip(){
 
 # WIndows and Linux have diff paths to hosts file
 case "$OSTYPE" in 
-    "linux-gnu"|"darwin")
+    "linux-gnu"|"darwin*")
         # All Linux flavour anf MacOs
         hosts_file="/etc/hosts"
         ;;

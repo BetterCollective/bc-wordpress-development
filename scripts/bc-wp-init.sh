@@ -43,13 +43,15 @@ nextip(){
 
 # WIndows and Linux have diff paths to hosts file
 case "$OSTYPE" in 
-    "linux-gnu"|"darwin*")
-        # All Linux flavour anf MacOs
-        hosts_file="/etc/hosts"
-        ;;
-    "msys")
+    linux-gnu*)  hosts_file="/etc/hosts" ;;
+    darwin*)  hosts_file="/etc/hosts" ;;
+    msys)  
         # Lightweight shell and GNU utilities compiled for Windows (part of MinGW)
         hosts_file="C:\Windows\System32\drivers\etc\hosts"
+        ;;
+    *)
+        echo "OS could not be determined, please stall the installation of local development environment and contact DevOps"
+        exit 1
         ;;
 esac
 

@@ -42,15 +42,17 @@ nextip(){
 }
 
 # WIndows and Linux have diff paths to hosts file
-if [[ "$OSTYPE" == "linux-gnu" ]]; then
-        # ...
+case "$OSTYPE" in 
+    "linux-gnu"|"darwin")
+        # All Linux flavour anf MacOs
         hosts_file="/etc/hosts"
-
-elif [[ "$OSTYPE" == "msys" ]]; then
+        ;;
+    "msys")
         # Lightweight shell and GNU utilities compiled for Windows (part of MinGW)
         hosts_file="C:\Windows\System32\drivers\etc\hosts"
+        ;;
+esac
 
-fi
 if [[ -n `cat $hosts_file | grep $domain` ]]
 then
     ip=`cat $hosts_file | grep $domain | awk ' { print $1} ' | uniq`

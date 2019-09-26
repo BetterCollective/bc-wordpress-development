@@ -41,12 +41,10 @@ nextip(){
     echo "$NEXT_IP"
 }
 
-# WIndows and Linux have diff paths to hosts file
 case "$OSTYPE" in 
-    linux-gnu*)  hosts_file="/etc/hosts" ;;
+    linux*)  hosts_file="/etc/hosts" ;;
     darwin*)  hosts_file="/etc/hosts" ;;
-    msys)  
-        # Lightweight shell and GNU utilities compiled for Windows (part of MinGW)
+    msys*)  
         hosts_file="C:\Windows\System32\drivers\etc\hosts"
         ;;
     *)

@@ -64,10 +64,6 @@ fi
 echo "Address $ip will be used for new vagrant box"
 sed -i -e "/^ip:/s/.*/ip: $ip/" site.yml
 
-forwarded_port=`shuf -i 8000-8999 -n 1`
-
-sed -i -e "/^forwarded_port:/s/.*/forwarded_port: $forwarded_port/" site.yml
-
 echo -n "Do you want to work on an existing Wordpress website (y/n)?"
 read answer
 if echo "$answer" | grep -iq "^y" ;then

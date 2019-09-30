@@ -41,21 +41,28 @@ nextip(){
     echo "$NEXT_IP"
 }
 
-# 
-if [[ -n `cat /etc/hosts | grep $domain` ]]
+case "$OSTYPE" in 
+    linux*)  hosts_file="/etc/hosts" ;;
+    darwin*)  hosts_file="/etc/hosts" ;;
+    msys*)  
+        hosts_file="C:\Windows\System32\drivers\etc\hosts"
+        ;;
+    *)
+        echo "OS could not be determined, please stall the installation of local development environment and contact DevOps"
+        exit 1
+        ;;
+esac
+
+if [[ -n `cat $hosts_file | grep $domain` ]]
 then
-    ip=`cat /etc/hosts | grep $domain | awk ' { print $1} ' | uniq`     
+    ip=`cat $hosts_file | grep $domain | awk ' { print $1} ' | uniq`
 else
-    max_used_ip=`cat /etc/hosts | grep -E '^192.168.33' | awk ' { print $1} ' | sort | uniq | tail -n 1`
+    max_used_ip=`cat $hosts_file | grep -E '^192.168.33' | awk ' { print $1} ' | sort | uniq | tail -n 1`
     test -n $max_used_ip && ip=$(nextip $max_used_ip) || ip="192.168.33.10"
 fi
 
 echo "Address $ip will be used for new vagrant box"
 sed -i -e "/^ip:/s/.*/ip: $ip/" site.yml
-
-forwarded_port=`python -c "import random; print random.randint(8000,8999)"`
-
-sed -i -e "/^forwarded_port:/s/.*/forwarded_port: $forwarded_port/" site.yml
 
 echo -n "Do you want to work on an existing Wordpress website (y/n)?"
 read answer

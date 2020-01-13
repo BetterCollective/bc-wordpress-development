@@ -24,7 +24,7 @@ case $php_version_number in
   "5")
         php_fpm='7.3'
         ;;
-  "*")
+  "*"|"")
         php_fpm='7.0'
 esac
 
@@ -58,7 +58,7 @@ then
     ip=`cat $hosts_file | grep $domain | awk ' { print $1} ' | uniq`
 else
     max_used_ip=`cat $hosts_file | grep -E '^192.168.33' | awk ' { print $1} ' | sort | uniq | tail -n 1`
-    test -n $max_used_ip && ip=$(nextip $max_used_ip) || ip="192.168.33.10"
+    [[ -n $max_used_ip ]] && ip=$(nextip $max_used_ip) || ip="192.168.33.10"
 fi
 
 echo "Address $ip will be used for new vagrant box"

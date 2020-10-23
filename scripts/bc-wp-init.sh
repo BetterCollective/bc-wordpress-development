@@ -1,5 +1,7 @@
 #!/bin/bash
+
 cp ./provision/default.yml ./site.yml
+
 while [[ -z $domain ]]; do
     printf "Domain name (eg. promocode.co.ke): "; read domain
 done
@@ -93,3 +95,7 @@ else
     echo "2) Enjoy developing with your files at ./wordpress/ shared with vm folder /var/www/html, with local access at http://$domain."
     echo "3) You can manage the database from phpMyAdmin at http://$domain/phpmyadmin with database 'wordpress', with username 'wordpress' and password 'wordpress'."
 fi
+
+echo "Renaming bc-wordpress-development/ directory to ${domain}/"
+mv ../bc-wordpress-development/ ../${domain}; 
+exec ${SHELL}

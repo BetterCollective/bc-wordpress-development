@@ -96,6 +96,7 @@ else
     echo "3) You can manage the database from phpMyAdmin at http://$domain/phpmyadmin with database 'wordpress', with username 'wordpress' and password 'wordpress'."
 fi
 
+echo ""
 echo "Renaming bc-wordpress-development/ directory to ${domain}/"
-mv ../bc-wordpress-development/ ../${domain}; 
+mv "$PWD" "${PWD%/*}/${domain}"
 exec ${SHELL}

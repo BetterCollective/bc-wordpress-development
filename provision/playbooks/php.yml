@@ -51,12 +51,22 @@
       - php{{ vccw.php_fpm }}-zip
       - php{{ vccw.php_fpm }}-dba
       - php{{ vccw.php_fpm }}-ldap
-      - php{{ vccw.php_fpm }}-recode
       - php{{ vccw.php_fpm }}-dev
       - php{{ vccw.php_fpm }}-mbstring
       - php{{ vccw.php_fpm }}-snmp
       - php{{ vccw.php_fpm }}-enchant
       - php{{ vccw.php_fpm }}-soap
+
+  - name: install recode when not 7.4 
+    apt:
+      name: "{{ item }}"
+      update_cache: yes
+      state: latest
+    become: true
+    become_user: root
+    with_items:
+      - php{{ vccw.php_fpm }}-recode
+    when: vccw.php_fpm != '7.4'
 
   - name: install only old version of php packages
     apt:

@@ -171,6 +171,17 @@
       - /etc/php/{{ vccw.php_fpm }}/cli/php.ini
       - /etc/php/{{ vccw.php_fpm }}/fpm/php.ini
 
+  - name: Set open permission on php socket (php8 issue ??)
+    replace:
+      path: "{{ item }}"
+      regexp: '^listen\.mode.*'
+      replace: 'listen.mode = 0666'
+      backup: yes
+    become: true
+    become_user: root
+    with_items:
+      - /etc/php/{{ vccw.php_fpm }}/fpm/pool.d/www.conf
+
   - name: Restart services
     service:
       name: "{{ item }}"

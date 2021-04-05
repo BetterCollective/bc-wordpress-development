@@ -46,7 +46,6 @@
       - php{{ vccw.php_fpm }}-pspell
       - php{{ vccw.php_fpm }}-xsl
       - php{{ vccw.php_fpm }}-curl
-      - php{{ vccw.php_fpm }}-json
       - php{{ vccw.php_fpm }}-readline
       - php{{ vccw.php_fpm }}-zip
       - php{{ vccw.php_fpm }}-dba
@@ -66,7 +65,18 @@
     become_user: root
     with_items:
       - php{{ vccw.php_fpm }}-recode
-    when: vccw.php_fpm != 7.4
+    when: vccw.php_fpm != 7.4 and vccw.php_fpm != 8.0
+
+  - name: install php-json when not 8.0  (virtual package provided by others)
+    apt:
+      name: "{{ item }}"
+      update_cache: yes
+      state: latest
+    become: true
+    become_user: root
+    with_items:
+      - php{{ vccw.php_fpm }}-json
+    when: vccw.php_fpm != 8.0
 
   - name: install only old version of php packages
     apt:
@@ -160,6 +170,17 @@
       - /etc/php/{{ vccw.php_fpm }}/apache2/php.ini
       - /etc/php/{{ vccw.php_fpm }}/cli/php.ini
       - /etc/php/{{ vccw.php_fpm }}/fpm/php.ini
+
+  - name: Set open permission on php socket (php8 issue ??)
+    replace:
+      path: "{{ item }}"
+      regexp: '^listen\.mode.*'
+      replace: 'listen.mode = 0666'
+      backup: yes
+    become: true
+    become_user: root
+    with_items:
+      - /etc/php/{{ vccw.php_fpm }}/fpm/pool.d/www.conf
 
   - name: Restart services
     service:
